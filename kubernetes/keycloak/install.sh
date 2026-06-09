@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+function install_keycloak() {
+
+	# NAMESPACE="keycloak"
+	NAMESPACE="solace"
+
+	create_namespace $NAMESPACE
+
+	if [ "$VERBOSE" -eq 1 ]; then
+		msg_info "Pods"
+		kubectl get pods
+	fi
+
+	apply_resources "keycloak.yml"
+
+	wait_pod_running "keycloak"
+
+	port_forward "8765" "8080" keycloak
+
+}

@@ -1,0 +1,487 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ema-config
+  namespace: solace
+data:
+  ema.yml: |
+    springdoc:
+      packages-to-scan: com.solace.maas.ep.event.management.agent.scanManager.rest
+      api-docs:
+        path: /docs/event-management-agent
+      swagger-ui:
+        path: /event-management-agent/swagger-ui.html
+    server:
+      port: 8180
+    spring:
+      main:
+        allow-bean-definition-overriding: true
+      jpa:
+        defer-datasource-initialization: true
+        hibernate:
+          ddl-auto: create-drop
+      datasource:
+        password: y0QTTPSawz
+        driver-class-name: org.h2.Driver
+        username: sa
+        url: jdbc:h2:file:./data/cache;DB_CLOSE_ON_EXIT=FALSE
+      servlet:
+        multipart:
+          max-request-size: ${MAX_REQUEST_SIZE:5MB}
+          max-file-size: ${MAX_FILE_SIZE:5MB}
+    camel:
+      main:
+        use-mdc-logging: true
+    kafka:
+      client:
+        config:
+          connections:
+            max-idle:
+              unit: milliseconds
+              value: 10000
+            request-timeout:
+              unit: milliseconds
+              value: 5000
+            timeout:
+              unit: milliseconds
+              value: 60000
+          reconnections:
+            max-backoff:
+              unit: milliseconds
+              value: 1000
+            backoff:
+              unit: milliseconds
+              value: 50
+    eventPortal:
+      runtimeAgentId: ${EP_RUNTIME_AGENT_ID:aax11tpdxqr}
+      organizationId: ${EP_ORGANIZATION_ID:0o7cua87oz4}
+      topicPrefix: ${EP_TOPIC_PREFIX:sc/ep/runtime}
+      gateway:
+        id: g527g4hnak7
+        name: US East EVMR
+        messaging:
+          standalone: false
+          rtoSession: false
+          enableHeartbeats: true
+          testHeartbeats: true
+          connections:
+          - name: eventPortalGateway
+            authenticationType: ${EP_GATEWAY_AUTH:basicAuthentication}
+            msgVpn: ${EP_GATEWAY_MSGVPN:us-east-evmr}
+            url: ${EP_GATEWAY_URL:tcps://prod-us-evmr.messaging.solace.cloud:55443}
+            ssl:
+              trustStore: /etc/ssl/certs/solace.crt
+              trustStoreType: PEM
+              validateCertificate: false
+            users:
+            - name: messaging1
+              password: B6zDufV5-JaBeZD^1vt8^bi}
+              username: ${EP_GATEWAY_USERNAME:org-0o7cua87oz4-b2dpd4apk26-aax11tpdxqr}
+              clientName: client_aax11tpdxqr
+            proxyEnabled: ${SOLACE_PROXY_ENABLED:false}
+            proxyType: ${SOLACE_PROXY_TYPE:http}
+            proxyHost: ${SOLACE_PROXY_HOST:localhost}
+            proxyPort: ${SOLACE_PROXY_PORT:8443}
+            proxyUsername: ${SOLACE_PROXY_USERNAME:}
+            proxyPassword: ${SOLACE_PROXY_PASSWORD:}
+    plugins:
+      resources:
+      - id: diw76klraeu
+        type: solace
+        name: IRIS
+        connections:
+        - name: IRIS
+          url: https://console.solace.cloud:943
+          properties:
+          - value: default
+            name: msgVpn
+          - value: 100
+            name: sempPageSize
+          authentication:
+          - properties:
+            - value: basicAuthentication
+              name: type
+            protocol: semp
+            credentials:
+            - source: ENVIRONMENT_VARIABLE
+              operations:
+              - name: ALL
+              properties:
+              - name: username
+                value: admin
+              - name: password
+                value: admin
+              
+---
+# Para obtener el certificado completo de Solace Cloud, se puede usar el siguiente comando:
+#openssl s_client -showcerts -connect prod-us-evmr.messaging.solace.cloud:55443 </dev/null 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /Volumes/PROJECTS/KYNDRYL/autobox/kubernetes/solace/solace_full_chain.crt
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: solace-agent-certs
+  namespace: solace
+data:
+  solace.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIE8zCCAtugAwIBAgIQQlpbSKc8TuJZlYafQQXtdjANBgkqhkiG9w0BAQsFADBa
+    MQswCQYDVQQGEwJVUzERMA8GA1UECAwITmV3IFlvcmsxETAPBgNVBAcMCE5ldyBZ
+    b3JrMSUwIwYDVQQDDBxLeW5kcnlsLUZvcndhcmQtVHJ1c3QtUlNBLXYyMB4XDTI2
+    MDIxODAwMDAwMFoXDTI3MDIyMDIzNTk1OVowcDELMAkGA1UEBhMCQ0ExEDAOBgNV
+    BAgTB09udGFyaW8xDzANBgNVBAcTBkthbmF0YTEbMBkGA1UEChMSU29sYWNlIENv
+    cnBvcmF0aW9uMSEwHwYDVQQDDBgqLm1lc3NhZ2luZy5zb2xhY2UuY2xvdWQwggEi
+    MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDCK3SjxEvCoPKFa19LmJpJvj6y
+    Cgy0ya+PlkCJjWH06pEyNSUWXqsp1bvgaWJaArxSHwNnCSOF/ElKsjcj60kNKQRV
+    OvoSBQ264OKXxIQ5uaCu9vZ4cS1I9apeiQDbwytCWAT2+9uzuN+4M9u9fGVwLj4P
+    Yllfkm7G18xqxqtTnRFC0CHqCTToEqW5XRL3laEoWYkxfJq5qbMz0oKVQTSNUEqX
+    ab5oO/TWw9MLyg86xSskfSiHoVb6CW9okEQ1EpOUmHGbgHJ88/GJXIwl3DfHab4f
+    XM7mdARabRBS1MiSMXD0+C5+OAd7GR6jGyxOTK5PN7+ZL1BAyefj3E3oJPlrAgMB
+    AAGjgZ4wgZswDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCAaAwFgYDVR0lAQH/
+    BAwwCgYIKwYBBQUHAwEwHQYDVR0OBBYEFDKs/QVRDD/DVYnPrRNeC6PDuYG/MCMG
+    A1UdEQQcMBqCGCoubWVzc2FnaW5nLnNvbGFjZS5jbG91ZDAfBgNVHSMEGDAWgBTf
+    5jud6w+hHsOIYs7FAi2jfIJ+fzANBgkqhkiG9w0BAQsFAAOCAgEADVHg5HHJE3Ts
+    EW6HJalCyDZHV7zTgXpZg1e+SKa1rrXSVRdo8L30fMzy6DQ0yjm6BVC23OB+4w4N
+    fkwUU/bB9fxsJ22zTjOAgL7ktvAfn5iledIegpKG9smSzr9QIrFXQScWRMKEA+3p
+    ZwQBXzET19hRVbYCMuBmcbAgzJXMEAGMM8GJurJqNsGzNBJFiPZfM/G/GtQKoqLG
+    eSqV9DNgsBK4szXpg1g0hhFfQ+fzgzCXdeTuI5YTbS0KtRT2J9NQmMp+LTs0UQRv
+    4sO+tsHswz9FInSCfzQBCdBQNip0ozrQOgFqxc91uO0F4jRDZh8rL6v9L3Qs1ruS
+    71PQ9BYGyf5Wiavt3ktlXk3k7aR/dM0UbGhQDJJwZqpyuoPC3x4s0GJpUIcWgXic
+    AIKt/nhehWkXmk3HDLUMwyFok1q277bBTg+kUPYm+DBVLb0ixTquYPDzAupJAjsn
+    m+5olp06QcsKasBesxHyJ7rPvSjXMmTFVdSYnU7n1Mkebh7US1t++6/kUl7SQiVi
+    SKvqIfXNRw2xsjWZEdvpYpyEWsqpWedUmUlIz63SIqNkuLxAg5yti55HgBCuTYzU
+    i/IGUlVAvUZ1YF/2IcRRRkk65iVJSSlRSf2r+vpS9vZ3le6o4bhcVjunIZkNrmXc
+    NlI0StLu5zFPUcYknex+yp8jE1O6rkk=
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIERjCCA+ygAwIBAgIUMGy4qpA0i6yEKf5D3pDAqTfiKh8wCgYIKoZIzj0EAwQw
+    VDELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMREwDwYDVQQHDAhOZXcg
+    WW9yazEfMB0GA1UEAwwWS3luZHJ5bCBTU0wgSW5zcGVjdGlvbjAeFw0yNTEyMDMx
+    NTQ4MDNaFw0zNTEyMDExNTQ4MDNaMFoxCzAJBgNVBAYTAlVTMREwDwYDVQQIDAhO
+    ZXcgWW9yazERMA8GA1UEBwwITmV3IFlvcmsxJTAjBgNVBAMMHEt5bmRyeWwtRm9y
+    d2FyZC1UcnVzdC1SU0EtdjIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoIC
+    AQDe2kLsxOf3QG3IaN7QYO/zCkB5Nb2RywvxM3Y3Lf7xdavYD7MnxJZiKQgSi1fc
+    oYp0xEIeGBW2sW6z1FthlzmysS0PIkfnKlEHDkWJ8ysUtVwCySCxDiBZRtPC62hT
+    /NV0RI08zFeziig5J81RuCa+puRju81wpa86MIcwYgji0nLjVgmILVT/9Kyy2587
+    p356ZQ9YIIZEh9acgtjs8rUW7kkvFpSsr0yIf5xOmc0UHuEjNs2icDdAOF7fRPj/
+    bNKmsdM4KDGoxhJFFXb9ZImlYPWGT7OR396So8zOFceDJDYYr0nLc5e3zLQl/43+
+    FzKbIxvSeXAMCGEokI25d6Dnl/5BsGIt5lo2w9ARmdKJw6Bwnxe1VOYP8GvO0b26
+    7bdi2O1w9aoylTUt7UrNMbnFhb8TC06V5HKB0zPxsui2NK5bWxPfSg9KQhEBKt4n
+    fscClp2Y89M/60poKMFcHpytkycDlahNdqgZ2fe6uvQxLzD4ZAeLH5W7qb1ch3nM
+    xjk9foul+HsXPgurR/e4UXQAIg7GI80T2Ivs+8AVnn77LwOCS928MadW8VTSseTU
+    1pCqqQLKXhPlhlP17nV5T0iTT13IONg3gC5JDce12r8RjPmMsofASF7plExKQLts
+    FkufJ+JypCgjP2Bwx6r/WljVKbZhZwCim9Tp2xfUCPsqGQIDAQABo4HKMIHHMB0G
+    A1UdDgQWBBTf5jud6w+hHsOIYs7FAi2jfIJ+fzCBhAYDVR0jBH0we4AUkkNIODjU
+    oIKi65NycejryiTrVNWhWKRWMFQxCzAJBgNVBAYTAlVTMREwDwYDVQQIDAhOZXcg
+    WW9yazERMA8GA1UEBwwITmV3IFlvcmsxHzAdBgNVBAMMFkt5bmRyeWwgU1NMIElu
+    c3BlY3Rpb26CCQDz84fv2vevGzAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQE
+    AwIBhjAKBggqhkjOPQQDBANIADBFAiAOigfhtc+E63cVDuTuTDWVqwlvND+cfByR
+    5eJr2JuZhgIhANNCiiDdcCAYIwQY3mhnvXXFCyKFVEC1lJtAOg/E4FhL
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIICaTCCAhCgAwIBAgIJAPPzh+/a968bMAoGCCqGSM49BAMEMFQxCzAJBgNVBAYT
+    AlVTMREwDwYDVQQIDAhOZXcgWW9yazERMA8GA1UEBwwITmV3IFlvcmsxHzAdBgNV
+    BAMMFkt5bmRyeWwgU1NMIEluc3BlY3Rpb24wHhcNMjQwMTE4MTcyNDE0WhcNMzQw
+    MTE3MTcyNDE0WjBUMQswCQYDVQQGEwJVUzERMA8GA1UECAwITmV3IFlvcmsxETAP
+    BgNVBAcMCE5ldyBZb3JrMR8wHQYDVQQDDBZLeW5kcnlsIFNTTCBJbnNwZWN0aW9u
+    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8r8HsWen23o/xyhB0mSBuOSqZ3Xj
+    INbHFeIcwvTFoMYbQbm28SmN6VZ91WhL4IP4D5HYjvEtpidZ+tYhoLPF4KOByjCB
+    xzAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBSSQ0g4ONSggqLrk3Jx6OvKJOtU
+    1TCBhAYDVR0jBH0we4AUkkNIODjUoIKi65NycejryiTrVNWhWKRWMFQxCzAJBgNV
+    BAYTAlVTMREwDwYDVQQIDAhOZXcgWW9yazERMA8GA1UEBwwITmV3IFlvcmsxHzAd
+    BgNVBAMMFkt5bmRyeWwgU1NMIEluc3BlY3Rpb26CCQDz84fv2vevGzAOBgNVHQ8B
+    Af8EBAMCAYYwCgYIKoZIzj0EAwQDRwAwRAIgUfLbm9D78q9UwNNYwlICCl6VD6SP
+    Fr9cS1RvZyOQfh0CIDTQ2TFyZxm1dXK52aqkteOyDjx/etC5XASMDLVSQb16
+    -----END CERTIFICATE-----
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solace-discovery-agent
+  namespace: solace
+  labels:
+    app: discovery-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discovery-agent
+  template:
+    metadata:
+      labels:
+        app: discovery-agent
+    spec:
+      containers:
+      - name: discovery-agent
+        image: solace/event-management-agent:1.9.7
+        env:
+          - name: SOLACE_CLOUD_TOKEN
+            value: "eyJhbGciOiJSUzI1NiIsImtpZCI6Im1hYXNfcHJvZF8yMDIwMDMyNiIsInR5cCI6IkpXVCJ9.eyJvcmciOiIwbzdjdWE4N296NCIsIm9yZ1R5cGUiOiJUUklBTCIsInN1YiI6ImIyZHBkNGFwazI2IiwicGVybWlzc2lvbnMiOiJBQUFBQUpRdkFBQUFmemdBNEFFQUFBQUFBQUFBQUFBQUFJQ0J4b2NoQUFqZ0sxY0RnSURLQmQ0RFdNTUQ0NGU1TTRNWkVQaC9Cc0RJNHVjaHZPRUIiLCJhcGlUb2tlbklkIjoidnMwamo4MGpnOHUiLCJpc3MiOiJTb2xhY2UgQ29ycG9yYXRpb24iLCJpYXQiOjE3Njg0Nzk0NjJ9.Vsm3k9dNSn-VbQrLWeIPWctbQ_TAQrKv2Foh3qNfJa-WkckgYMtTrOSYa0rOB8M2GwkC3_7q6wN9j7Wm58Hr1f8f-jleJ2dlzNyHJ3o510uxAmxhWzNii7vs92vxEWn8goA5CaektB8BHw8EvPSiXYxpHqI-9RX8bG7evOh_ErS_3bgQmFYZCzhGjb6cs7yCS4B3d8VX3dMY5vsc9vJgl9LRBo0fcWtvfVTm6ongg37sj3Zkt1VNcO-kD0MZaaeyxbemxFfVehc5VQWHZO0kOvm9EzTFyU7Ebjz613zPWF-5COM9-XRHXTGapRKHxDMCLREJjpcFDxvdz09dsNZ5vA"
+          # - name: SOLACE_CLOUD_URL
+          #   value: "https://console.solace.cloud"
+          - name: AGENT_NAME
+            value: "K8s-Standalone-Agent"
+          # DESACTIVA EL PLUGIN DE KAFKA QUE DA EL ERROR
+          - name: SOLACE_MAAS_PLUGINS_KAFKA_ENABLED
+            value: "false"
+          # OPCIONAL: DESACTIVA OTROS SI NO LOS USAS
+          - name: SOLACE_MAAS_PLUGINS_CONFLUENT_ENABLED
+            value: "false"
+          - name: SOLACE_MAAS_PLUGINS_KAFKA_CLIENT_TIMEOUT_VALUE
+            value: "60"
+          - name: SOLACE_MAAS_PLUGINS_KAFKA_CLIENT_TIMEOUT_UNIT
+            value: "SECONDS"
+          # - name: SPRING_PROFILES_ACTIVE
+          #   value: "solace"
+          - name: AGENT_NAME
+            value: "K8s-Standalone-Agent"
+          - name: LOGGING_LEVEL_ROOT
+            value: "INFO"
+          - name: LOGGING_LEVEL_COM_SOLACE
+            value: "INFO"
+          - name: LOGGING_LEVEL_COM_SOLACESYSTEMS
+            value: "INFO"
+          # - name: JAVA_OPTS
+          #   value: >-
+          #     -Djavax.net.ssl.trustStore=/etc/ssl/certs/solace.crt
+          #     -Djavax.net.ssl.trustStoreType=PEM
+          #     -Dsolace.messaging.transport.ssl.trust-store-path=/etc/ssl/certs/solace.crt
+          #     -Dsolace.messaging.transport.ssl.trust-store-format=PEM
+          #     -Dsolace.messaging.transport.ssl.validate-certificate=false
+          #     -Dsolace.eventportal.gateway.messaging.connections.0.ssl.truststore=/etc/ssl/certs/solace.crt
+          #     -Dsolace.eventportal.gateway.messaging.connections.0.ssl.truststoretype=PEM
+          #     -Dsolace.eventportal.gateway.messaging.connections.0.ssl.truststoreformat=PEM
+          #     -Dsolace.eventportal.gateway.messaging.connections.0.ssl.validatecertificate=false
+          #     -Dsolace.cloud.ssl.trust-store=/etc/ssl/certs/solace.crt
+          #     -Dsolace.cloud.ssl.validate-certificate=false
+          #     -Dsolace.cloud.ssl.trust-store-format=PEM
+          #     -Dspring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true 
+
+          # 2. Configuración específica para el Gateway del Event Portal
+          - name: SOLACE_EVENTPORTAL_GATEWAY_MESSAGING_CONNECTIONS_0_SSL_TRUSTSTORE
+            value: "/etc/ssl/certs/solace.crt"
+          - name: SOLACE_EVENTPORTAL_GATEWAY_MESSAGING_CONNECTIONS_0_SSL_TRUSTSTORETYPE
+            value: "PEM"
+          - name: SOLACE_EVENTPORTAL_GATEWAY_MESSAGING_CONNECTIONS_0_SSL_TRUSTSTOREFORMAT
+            value: "PEM"
+          # Intenta poner esto en false explícitamente para ver si el error desaparece
+          - name: SOLACE_EVENTPORTAL_GATEWAY_MESSAGING_CONNECTIONS_0_SSL_VALIDATECERTIFICATE
+            value: "false"
+          # 3. Configuración para el componente Cloud (Registro del agente)
+          - name: SOLACE_CLOUD_SSL_TRUST_STORE
+            value: "/etc/ssl/certs/solace.crt"
+          - name: SOLACE_CLOUD_SSL_VALIDATE_CERTIFICATE
+            value: "false"
+          - name: SOLACE_CLOUD_SSL_TRUST_STORE_FORMAT
+            value: "PEM"
+          # 4. Configuración genérica de transporte (Solace Messaging)
+          - name: SOLACE_MESSAGING_TRANSPORT_SSL_TRUST_STORE_PATH
+            value: "/etc/ssl/certs/solace.crt"
+          - name: SOLACE_MESSAGING_TRANSPORT_SSL_TRUST_STORE_FORMAT
+            value: "PEM"
+          - name: SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_LOB_NON_CONTEXTUAL_CREATION
+            value: "true"
+        volumeMounts:
+          - name: ema-config-volume
+            mountPath: /config/ema.yml
+            subPath: ema.yml
+          - name: cert-volume
+            mountPath: /etc/ssl/certs/solace.crt
+            subPath: solace.crt
+        resources:
+          requests:
+            cpu: 800m
+            memory: 2512Mi
+          limits:
+            cpu: 800m
+            memory: 2512Mi
+      volumes:
+        - name: ema-config-volume
+          configMap:
+            name: ema-config
+        - name: cert-volume
+          configMap:
+            name: solace-agent-certs
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solace
+  labels:
+    app: solace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solace
+  template:
+    metadata:
+      labels:
+        app: solace
+    spec:
+      containers:
+      - name: solace
+        image: solace/solace-pubsub-standard:10.25.13
+        resources:
+          requests:
+            cpu: 3000m  # Adjust CPU request if needed
+            memory: 6.0Gi  # Increase memory request to 2.5 GiB (or slightly higher)
+          limits:
+            cpu: 3000m  # Adjust CPU limit if needed
+            memory: 6.0Gi
+        volumeMounts:
+           - mountPath: /dev/shm
+             name: dshm
+        ports:
+        - containerPort: 8008
+          protocol: TCP
+        - containerPort: 1443
+          protocol: TCP
+        - containerPort: 1943
+          protocol: TCP
+        - containerPort: 1883
+          protocol: TCP
+        - containerPort: 5671
+          protocol: TCP
+        - containerPort: 5672
+          protocol: TCP
+        - containerPort: 8000
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+        - containerPort: 8883
+          protocol: TCP
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 9000
+          protocol: TCP
+        - containerPort: 9443
+          protocol: TCP
+        - containerPort: 55555
+          protocol: TCP
+        - containerPort: 55554
+          protocol: TCP
+        - containerPort: 55003
+          protocol: TCP
+        - containerPort: 55443
+          protocol: TCP
+        - containerPort: 2222
+          protocol: TCP
+        env:
+          - name: username_admin_globalaccesslevel
+            value: "admin"
+          - name: username_admin_password
+            value: "admin"
+          - name: system_scaling_maxconnectioncount
+            value: "1000"
+          - name: storage_maxspoolusage
+            value: "10000"
+          - name: system_scaling_maxkafkabridgecount
+            value: "10"
+          # - name: system_scaling_maxkafkabrokerconnectioncount
+          #   value: "10"
+          - name: system_scaling_maxbridgecount
+            value: "25"  
+          - name: messagespool_maxspoolusage
+            value: "15000"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: ema-config-volume
+          configMap:
+            name: ema-config
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: "solace"
+  namespace: solace
+spec:
+  ports:
+  - name: smf
+    port: 55555
+    protocol: TCP
+    targetPort: 55555
+  - name: "web-http"
+    port: 8008
+    protocol: "TCP"
+    targetPort: 8008
+  - name: "web-tls"
+    port: 1443
+    protocol: "TCP"
+    targetPort: 1443
+  - name: "semp-manager"
+    port: 8080
+    protocol: "TCP"
+    targetPort: 8080
+  - name: "rest-vpn"
+    port: 9000
+    protocol: "TCP"
+    targetPort: 9000
+  selector:
+    app: "solace"
+  type: "ClusterIP"     
+ 
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-karavan
+  namespace: solace
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: karavan
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: allow-confluent-to-solace
+#   namespace: solace
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: solace 
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - from:
+#     - namespaceSelector:
+#         matchLabels:
+#           kubernetes.io/metadata.name: confluent
+#     ports:
+#     # - protocol: TCP
+#     #   port: 8080    # API SEMP / Manager
+#     - protocol: TCP
+#       port: 55555   # Protocolo SMF (Datos)
+#     - protocol: TCP
+#       port: 9000    # REST Messaging
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: solace-egress-to-confluent
+#   namespace: solace
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: solace
+#   policyTypes:
+#   - Egress
+#   egress:
+#   - to:
+#     - namespaceSelector:
+#         matchLabels:
+#           kubernetes.io/metadata.name: confluent
+#     ports:
+#     - protocol: TCP
+#       port: 9071 # Puerto de Kafka

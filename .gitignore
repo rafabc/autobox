@@ -1,0 +1,15 @@
+**/.DS_Store
+./node_modules
+../node_modules
+node_modules
+**/node_modules
+**/.vscode
+**/.idea
+**/.git
+**/.github
+**/target
+logs
+./compose/.DS_Store
+autobox.code-workspace
+kubernetes/solace/solace-schema-registry
+kubernetes/solace/solace_full_chain.crt
