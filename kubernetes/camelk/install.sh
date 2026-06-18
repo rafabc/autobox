@@ -12,6 +12,7 @@ function install_camelk() {
 
     check_installed_resources
 
+    msg_ok "Camel K installed successfully"
 
 
     #&  BUILD INTEGRATION FROM IMAGE
@@ -75,7 +76,7 @@ function install_camelk_operator() {
         #Instalacion del operador
         #kamel install --olm=true --registry http://host.docker.internal:5000 --registry-insecure true --force #&>/dev/null
         #kubectl create -f https://operatorhub.io/install/camel-k.yaml
-        kubectl apply -k github.com/apache/camel-k/install/overlays/kubernetes/descoped?ref=v2.6.0 --server-side
+        kubectl apply -k github.com/apache/camel-k/install/overlays/kubernetes/descoped?ref=v2.6.0 --server-side &>/dev/null
 
         msg_check_success "El operador $OPERATOR_NAME se ha instalado correctamente."
     fi

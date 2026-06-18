@@ -12,4 +12,5 @@ logs
 ./compose/.DS_Store
 autobox.code-workspace
 kubernetes/solace/solace-schema-registry
+kubernetes/solace/solace-pubsub-monitor
 kubernetes/solace/solace_full_chain.crt

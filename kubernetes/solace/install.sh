@@ -3,9 +3,7 @@
 function install_solace() {
 
     NAMESPACE="solace"
-    create_namespace $NAMESPACE
-
-    apply_resources "solace.yml"
+    create_resources "solace.yml" $NAMESPACE
     
     msg "Waiting for Solace pods to be running..."
     wait_pod_running "solace"
@@ -31,5 +29,7 @@ function install_solace() {
     # port_forward "8080" "8080" schema-registry-ui
     # port_forward "8081" "8081" schema-registry
     # port_forward "3000" "3000" idp
+
+    msg_ok "Solace installed successfully"
 
 }

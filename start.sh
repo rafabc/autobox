@@ -46,6 +46,7 @@ source ./kubernetes/confluent/check.sh
 source ./kubernetes/confluent/uninstall.sh
 
 source ./kubernetes/camelk/install.sh
+source ./kubernetes/camelk/check.sh
 source ./kubernetes/camelk/uninstall.sh
 
 source ./kubernetes/klaw/install.sh
