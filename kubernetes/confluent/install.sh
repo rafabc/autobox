@@ -4,7 +4,7 @@ function install_confluent() {
 
 	NAMESPACE="confluent"
 	create_namespace $NAMESPACE
-
+	
 	if ! command -v helm &>/dev/null; then
 		msg_warn "Helm could not be found, please install Helm before start."
 		exit 1
@@ -29,13 +29,14 @@ function install_confluent() {
 		fi
 	fi
 
+	create_resources "confluent.yml" $NAMESPACE
 
 	if [ "$VERBOSE" -eq 1 ]; then
 		msg_info "Pods"
 		kubectl get pods
 	fi
 
-	apply_resources "confluent.yml"
+	
 
 	wait_pod_running "kraftcontroller-0"
 

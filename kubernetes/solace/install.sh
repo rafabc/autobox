@@ -17,11 +17,13 @@ function install_solace() {
     port_forward "9000" "9000" solace
     port_forward "1443" "1443" solace
     port_forward "5555" "55555" solace
+    msg_ok "Solace broker installed successfully"
+    sleep 2
 
 
     #INSTALL SOLACE SCHEMA REGISTRY
     # cd solace-schema-registry
-    # apply_resources "solace-schema-registry.yml"
+    # create_resources "solace-schema-registry.yml" $NAMESPACE
     # msg "Waiting for Solace Schema Registry pods to be running..."
     # wait_pod_running "solace-schema-registry"
 
@@ -29,7 +31,22 @@ function install_solace() {
     # port_forward "8080" "8080" schema-registry-ui
     # port_forward "8081" "8081" schema-registry
     # port_forward "3000" "3000" idp
+    # msg_ok "Solace schema registry installed successfully"
+    # sleep 2
 
-    msg_ok "Solace installed successfully"
+    #INSTALL SOLACE PUBSUB MONITOR
+    cd solace-pubsub-monitor
+    create_resources "solace-pubsub-monitor.yml" $NAMESPACE
+    msg "Waiting for Solace PubSub Monitor pods to be running..."
+    wait_pod_running "solace-pubsub-monitor"
+
+    port_forward "8068" "8068" solace-pubsub-monitor
+    port_forward "8080" "8080" solace-pubsub-monitor
+    port_forward "4178" "4178" solace-pubsub-monitor
+    port_forward "9102" "9102" solace-pubsub-monitor
+    port_forward "7271" "7271" solace-pubsub-monitor
+
+
+    msg_ok "Solace pubsub monitor installed successfully"
 
 }
