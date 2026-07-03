@@ -1,6 +1,6 @@
 function install_kafbat_helm() {
 
-    NAMESPACE="kafbat"
+    NAMESPACE="confluent"
     create_namespace $NAMESPACE
 
     if [ "$VERBOSE" -eq 1 ]; then
@@ -10,10 +10,12 @@ function install_kafbat_helm() {
 
     helm repo add kafka-ui https://kafbat.github.io/helm-charts
     helm repo update
-    helm install kafka-ui kafka-ui/kafka-ui --set envs.config.KAFKA_CLUSTERS_0_NAME=local --set envs.config.KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+    helm install kafka-ui kafka-ui/kafka-ui \
+            --set envs.config.KAFKA_CLUSTERS_0_NAME=local \
+            --set envs.config.KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 
-   # wait_pod_running "eventcatalog"
+   wait_pod_running "kafka-ui"
 
-    port_forward "8987" "80" kafka-ui
+    port_forward "8987" "8080" kafka-ui
 
 }

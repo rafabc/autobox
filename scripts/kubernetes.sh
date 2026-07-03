@@ -111,7 +111,7 @@ function kube_delete() {
     case "$TOOL" in
     0)
         # ************************* KUBERNETES DASHBOARD *****************************
-        kubectl delete -f *
+        uninstall_kubernetes_dashboard
         ;;
     1)
         # ************************* ACTIVE MQ **************************************** 

@@ -47,6 +47,6 @@ function install_solace() {
     port_forward "7271" "7271" solace-pubsub-monitor
 
 
-    msg_ok "Solace pubsub monitor installed successfully"
+    msg_ok "Solace installed successfully"
 
 }

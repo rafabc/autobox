@@ -250,6 +250,10 @@ function execute_kube_tool_action() {
         cd kubernetes/eventcatalog
         msg "TOOL SELECTED" "EVENT CATALOG" "WITH ACTION $action_selected IN tool $tool_selected"
         ;;
+    13)
+        cd kubernetes/kafbat-ui
+        msg "TOOL SELECTED" "KAFBAT UI" "WITH ACTION $action_selected IN tool $tool_selected"
+        ;;
     esac
 }
 
