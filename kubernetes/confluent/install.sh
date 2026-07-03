@@ -4,7 +4,7 @@ function install_confluent() {
 
 	NAMESPACE="confluent"
 	create_namespace $NAMESPACE
-	
+
 	if ! command -v helm &>/dev/null; then
 		msg_warn "Helm could not be found, please install Helm before start."
 		exit 1
@@ -57,6 +57,9 @@ function install_confluent() {
 	port_forward "8081" "8081" schemaregistry-0-internal
 
 	port_forward "8083" "8083" connect-0-internal
+
+
+	msg_ok "Confluent installed successfully"
 	
 
 }

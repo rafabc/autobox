@@ -3,10 +3,7 @@
 function install_klaw() {
 
     NAMESPACE="klaw"
-
-    create_namespace $NAMESPACE
-
-    apply_resources "klaw.yml"
+    create_resources "klaw.yml" $NAMESPACE
 
     POD_KLAW_CORE=$(kubectl get pods -o=jsonpath='{range .items[*]}{@.metadata.name}{"\n"}{end}' | grep '^klaw-core')
     POD_KLAW_CLUSTER_API=$(kubectl get pods -o=jsonpath='{range .items[*]}{@.metadata.name}{"\n"}{end}' | grep '^klaw-cluster-api')
@@ -17,5 +14,7 @@ function install_klaw() {
 
     #USER=superadmin
     #PASSWORD=welcometoklaw
+
+    msg_ok "Klaw installed successfully"
 
 }

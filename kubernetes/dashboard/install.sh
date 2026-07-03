@@ -10,4 +10,6 @@ function install_kubernetes_dashboard() {
 
     port_forward "9090" "9090" kubernetes-dashboard & disown
 
+    msg_ok "Kubernetes Dashboard installed successfully"
+
 }

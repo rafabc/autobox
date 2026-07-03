@@ -22,6 +22,8 @@ function install_event_catalog_helm() {
 
     wait_pod_running "eventcatalog"
 
-	port_forward "8080" "80" eventcatalog
+	port_forward "8021" "80" eventcatalog
+
+	msg_ok "Event Catalog installed successfully"
 
 }

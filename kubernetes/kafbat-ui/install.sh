@@ -14,8 +14,8 @@ function install_kafbat_helm() {
             --set envs.config.KAFKA_CLUSTERS_0_NAME=local \
             --set envs.config.KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 
-   wait_pod_running "kafka-ui"
+    wait_pod_running "kafka-ui"
 
     port_forward "8987" "8080" kafka-ui
-
+    msg_ok "Kafka UI installed successfully"
 }
