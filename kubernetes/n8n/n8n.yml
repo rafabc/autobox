@@ -124,7 +124,7 @@ spec:
     spec:
       containers:
       - name: n8n
-        image: n8nio/n8n:1.37.4
+        image: n8nio/n8n:2.29.10
         imagePullPolicy: IfNotPresent
         ports:
         - name: http

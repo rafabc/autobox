@@ -2,6 +2,9 @@
 
 function install_linkerd() {
 
+
+    NAMESPACE="Linkerd"
+
     msg_task "Install Linkerd Cli"
     curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install | sh
     msg_info "Add Linkerd command to PATH"
@@ -20,7 +23,7 @@ function install_linkerd() {
     linkerd install --set proxyInit.runAsRoot=true | kubectl apply -f -
     check_operation $? "Linkerd installed"
 
-    apply_resources "linkerd.yml"
+    create_resources "linkerd.yml"
     linkerd check
     check_operation $? "Linkerd apply"
 

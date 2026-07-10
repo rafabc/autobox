@@ -40,9 +40,11 @@ spec:
             - name: KLAW_CLUSTERAPI_URL
               value: http://klaw-cluster-api:9343
             - name: KLAW_CLUSTERAPI_ACCESS_BASE64_SECRET
-              value: "dGhpcyBpcyBhIHNlY3JldCB0byBhY2Nlc3MgY2x1c3RlcmFwaQ=="
+              value: "VGhpc0lzRXhhY3RseUEzMkNoYXJTdHJpbmdTZWNyZXQK"
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:h2:file:/klaw/klawprodb;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;MODE=MySQL;CASE_INSENSITIVE_IDENTIFIERS=TRUE;"
+            - name: KLAW_SUPERADMIN_DEFAULT_PASSWORD
+              value: "welcometoklaw"
           # volumeMounts:
           #   - name: klaw-data
           #     mountPath: /klaw
@@ -102,7 +104,7 @@ spec:
           image: aivenoy/klaw-cluster-api:latest
           env:
             - name: KLAW_CLUSTERAPI_ACCESS_BASE64_SECRET
-              value: "dGhpcyBpcyBhIHNlY3JldCB0byBhY2Nlc3MgY2x1c3RlcmFwaQ=="
+              value: "VGhpc0lzRXhhY3RseUEzMkNoYXJTdHJpbmdTZWNyZXQK"    # <---ThisIsExactlyA32CharStringSecret
       #     volumeMounts:
       #       - name: klaw-data
       #         mountPath: /klaw

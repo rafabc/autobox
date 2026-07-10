@@ -43,21 +43,71 @@ function wait_pod_running() {
         return 0
     fi
 
-    kubectl wait --for=condition=ContainersReady "$POD" --timeout=3m &
-    spinner $! "Waiting for condition container ready in pod $POD_NAME"
-    WAIT_RC=$?
+    # kubectl wait --for=condition=ContainersReady "$POD" --timeout=3m &
+    # spinner $! "Waiting for condition container ready in pod $POD_NAME"
+    # WAIT_RC=$?
     
-    READY=$(kubectl get "$POD" -o jsonpath='{.status.conditions[?(@.type=="ContainersReady")].status}')
+    # READY=$(kubectl get "$POD" -o jsonpath='{.status.conditions[?(@.type=="ContainersReady")].status}')
 
+    # if [ "$WAIT_RC" -eq 0 ] && [ "$READY" = "True" ]; then
+    #     STATE=$(kubectl get "$POD" -o jsonpath='{range .status.containerStatuses[*]} {range .state.waiting}{.reason}{end} {range .state.running}Running{end} {range .state.terminated}{.reason}{end} {end}')
+    #     msg_check_success "POD READY STATE ->" "$STATE" "$POD_NAME is in ContainersReady=True state"
+    #     return 0
+    # else
+    #     msg_info "Pod $POD_NAME failed to reach ready state within timeout. Current status:"
+    #     msg_info_idented "Current READY status: $READY y WAIT_RC: $WAIT_RC"
+    #     msg_check_fail "POD NOT READY" "$POD failed to reach ready state"
+    #     kubectl get "$POD"
+    #     return 1
+    # fi
+
+    local MAX_WAIT_RETRIES=3
+    local WAIT_COUNT=0
+    local WAIT_RC=1
+
+    while [ $WAIT_COUNT -lt $MAX_WAIT_RETRIES ]; do
+        WAIT_COUNT=$((WAIT_COUNT + 1))
+        
+        # Lanzamos el wait en segundo plano para el spinner
+        kubectl wait --for=condition=ContainersReady "$POD" --timeout=3m &
+        spinner $! "Waiting for condition container ready in pod $POD_NAME (Intento $WAIT_COUNT de $MAX_WAIT_RETRIES)"
+        WAIT_RC=$?
+        
+        # Verificamos el estado real tras el wait
+        READY=$(kubectl get "$POD" -o jsonpath='{.status.conditions[?(@.type=="ContainersReady")].status}')
+        
+        # Si ha ido bien y está en True, salimos del bucle
+        if [ "$WAIT_RC" -eq 0 ] && [ "$READY" = "True" ]; then
+            break
+        fi
+        
+        # --- NUEVO: Chequeo de descarga de imágenes ---
+        # Extraemos las razones por las que los contenedores puedan estar esperando
+        WAITING_REASONS=$(kubectl get "$POD" -o jsonpath='{.status.containerStatuses[*].state.waiting.reason}')
+        
+        if echo "$WAITING_REASONS" | grep -E -q "ContainerCreating|ErrImagePull|ImagePullBackOff"; then
+            # Si el estado es alguno de estos, lo más probable es que siga descargando o negociando con el Registry
+            msg_info "Nota: El pod sigue en creación o descargando la imagen (Estado: $WAITING_REASONS)."
+        fi
+        # ---------------------------------------------
+        
+        if [ $WAIT_COUNT -lt $MAX_WAIT_RETRIES ]; then
+            msg_info "El pod $POD_NAME no llegó a Ready en el intento $WAIT_COUNT. Reintentando espera..."
+            sleep 5 
+        fi
+    done
+
+    # Evaluation final fuera del bucle
     if [ "$WAIT_RC" -eq 0 ] && [ "$READY" = "True" ]; then
         STATE=$(kubectl get "$POD" -o jsonpath='{range .status.containerStatuses[*]} {range .state.waiting}{.reason}{end} {range .state.running}Running{end} {range .state.terminated}{.reason}{end} {end}')
         msg_check_success "POD READY STATE ->" "$STATE" "$POD_NAME is in ContainersReady=True state"
         return 0
     else
-        msg_info "Pod $POD_NAME failed to reach ready state within timeout. Current status:"
-        msg_info_idented "Current READY status: $READY y WAIT_RC: $WAIT_RC"
+        msg_info "Pod $POD_NAME failed to reach ready state after $MAX_WAIT_RETRIES attempts. Current status:"
+        msg_info_idented "Current READY status: $READY y WAIT_RC del último intento: $WAIT_RC"
         msg_check_fail "POD NOT READY" "$POD failed to reach ready state"
         kubectl get "$POD"
         return 1
     fi
+    
 }
